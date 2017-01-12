@@ -7,8 +7,8 @@ import Settings from "../../modes";
 import {
   _toCC,
   inherit,
-  validName,
-  deCapitalize
+  deCapitalize,
+  validUsername
 } from "../../utils";
 
 import print from "../../print";
@@ -40,7 +40,7 @@ export default class Pokemon extends MapObject {
     this.capturedLevel = 0;
 
     this.cp = 0;
-    this.cpMultiplier = Math.random();
+    this.cpMultiplier = Math.random() + 1.0;
     this.addCpMultiplier = 0;
 
     this.move1 = 0;
@@ -66,6 +66,7 @@ export default class Pokemon extends MapObject {
     this.pokeball = null;
 
     this.isWild = false;
+    this.isOwned = false;
 
     this.spawnPoint = null;
 
@@ -78,7 +79,6 @@ export default class Pokemon extends MapObject {
   }
   set level(value) {
     this._level = parseFloat(value);
-    this.calcStats();
   }
 
   /**
@@ -102,10 +102,23 @@ export default class Pokemon extends MapObject {
       else if (key === "move_2") {
         this.move2 = obj[key];
       }
+      else if (key === "height_m") {
+        this.height = obj[key];
+      }
+      else if (key === "weight_kg") {
+        this.weight = obj[key];
+      }
+      else if (key === "individual_attack") {
+        this.ivAttack = obj[key];
+      }
+      else if (key === "individual_defense") {
+        this.ivDefense = obj[key];
+      }
+      else if (key === "individual_stamina") {
+        this.ivStamina = obj[key];
+      }
     };
-    if (!obj.isWild) {
-      this.calcStats();
-    }
+    if (!obj.isWild && !obj.isOwned) this.calcStats(this.owner);
   }
 
   /**
@@ -129,8 +142,9 @@ export default class Pokemon extends MapObject {
    * @param {String} name
    */
   setNickname(name) {
-    if (!validName(name)) return void 0;
-    this.nickname = name;
+    if (validUsername(name)) {
+      this.nickname = name;
+    }
   }
 
   /**
@@ -189,13 +203,6 @@ export default class Pokemon extends MapObject {
   }
 
   /**
-   * @return {Number}
-   */
-  candiesToPowerUp() {
-    return (1337);
-  }
-
-  /**
    * @return {Boolean}
    */
   hasReachedMaxLevel() {
@@ -249,6 +256,44 @@ export default class Pokemon extends MapObject {
       });
     });
   }
+ updateDatabase() {
+    let query = `
+      UPDATE ${CFG.MYSQL_OWNED_PKMN_TABLE} SET
+        owner_id=?,
+        dex_number=?,
+        cp=?,
+        stamina=?,
+        stamina_max=?,
+        move_1=?,
+        move_2=?,
+        height_m=?,
+        weight_kg=?,
+        individual_attack=?,
+        individual_defense=?,
+        individual_stamina=?,
+        cp_multiplier=?,
+        pokeball=?,
+        favorite=?,
+        nickname=?
+        WHERE
+        id=?
+    `;
+    let data = [
+      this.owner.uid, this.dexNumber, this.cp,
+      this.stamina, this.staminaMax,
+      this.move1, this.move2,
+      this.height, this.weight,
+      this.ivAttack, this.ivDefense, this.ivStamina,
+      this.cpMultiplier, this.pokeball, this.favorite, this.nickname,this.uid || ""
+    ];
+    return new Promise((resolve) => {
+      this.owner.world.db.query(query, data, (e, res) => {
+        if (e) return print(e, 31);
+        resolve(res);
+      });
+    });
+  }
+
 
   /**
    * @return {Object}
@@ -270,8 +315,9 @@ export default class Pokemon extends MapObject {
       cp_multiplier: this.cpMultiplier,
       pokeball: "ITEM_POKE_BALL",
       captured_cell_id: "1337",
-      creation_time_ms: +new Date() - 1e3,
-      favorite: this.favorite
+      creation_time_ms: +new Date(),
+      favorite: this.favorite,
+      nickname: this.nickname
     });
   }
 

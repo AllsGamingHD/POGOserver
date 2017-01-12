@@ -1,0 +1,13 @@
+const CFG = {
+  API: {
+    HOST: "127.0.0.1",
+    PORT: 3000,
+    ROUTE: "/api"
+  },
+  GMAPS: {
+    API_KEY: "AIzaSyBjrq_CCDjmgNLJZnLBrMRgIxTJrgW_LaY",
+    BASE_ZOOM: 20,
+    BASE_LAT: 40.764941,
+    BASE_LNG: -73.972951
+  }
+};

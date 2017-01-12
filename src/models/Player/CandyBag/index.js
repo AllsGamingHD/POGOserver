@@ -1,7 +1,6 @@
 import { GAME_MASTER } from "../../../shared";
 
 import ENUM from "../../../enum";
-
 /**
  * @class CandyBag
  */
@@ -70,9 +69,8 @@ export default class CandyBag {
    * @return {Number}
    */
   getCandy(dex) {
-    return (
-      this.getCandyByDexNumber(dex)
-    );
+    let candy = this.getCandyByDexNumber(dex);
+    return (candy.amount);
   }
 
   /**
@@ -113,6 +111,18 @@ export default class CandyBag {
       });
     };
     return (out);
+  }
+
+  /**
+   * @return {String}
+   */
+  querify() {
+    let buffer = {};
+    for (let key in this.candies) {
+      let candy = this.candies[key].amount;
+      buffer[key] = candy;
+    };
+    return (JSON.stringify(buffer));
   }
 
   /**

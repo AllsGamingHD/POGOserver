@@ -14,10 +14,14 @@ export default function FortSearch(msg) {
   return new Promise((resolve) => {
     this.getFortDataById(msg.fort_id).then((fort) => {
       if (!fort) return void 0;
-      let buffer = ({
+      player.consumeFortRewards(fort);
+	  let exp = fort.experience;
+      // TODO: disable rewarding when on cooldown
+      if(player.info.LuckyEggExp !=0 && player.info.LuckyEggExp > new Date() ){exp = exp*2;}
+	  let buffer = ({
         result: "SUCCESS",
         items_awarded: fort.serializeRewards(),
-        experience_awarded: fort.experience,
+        experience_awarded: exp,
         cooldown_complete_timestamp_ms: +new Date() + fort.cooldown,
         chain_hack_sequence_number: 2
       });

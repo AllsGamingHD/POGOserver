@@ -17,11 +17,11 @@ export function powerUp() {
   let pkmnTmpl = this.getPkmnTemplate(this.dexNumber);
   let ownerStardust = this.owner.info.stardust;
   let ownerPkmnCandies = this.owner.candyBag.getCandy(this.dexNumber);
-  let requiredCandies = this.candiesToPowerUp();
-  print(`${this.getPkmnName()} requires ${requiredCandies} to power up!`);
+  let requiredCandies = 1;
+  print(`${this.getPkmnName()} requires ${requiredCandies} candies to power up!`);
   if (ownerPkmnCandies >= requiredCandies) {
     this.level += 1;
-    this.owner.candyBag.removeCandy(this.dexNumber, pkmnTmpl.candy_to_evolve);
+    this.owner.candyBag.removeCandy(this.dexNumber, requiredCandies);
     return (true);
   }
   return (false);
@@ -34,7 +34,7 @@ export function evolve() {
   let pkmnTmpl = this.getPkmnTemplate(this.dexNumber);
   let ownerPkmnCandies = this.owner.candyBag.getCandy(this.dexNumber);
   let candiesToEvolve = this.candiesToEvolve();
-  if (ownerPkmnCandies < candiesToEvolve()) {
+  if (ownerPkmnCandies < candiesToEvolve) {
     return print(`You have ${ownerPkmnCandies}/${candiesToEvolve} candies to evolve ${this.getPkmnName()}!`, 31);
   }
   let evolutions = pkmnTmpl.evolution_ids;
@@ -57,10 +57,12 @@ export function evolveInto(ev) {
   let evName = _toCC(ev);
   let evId = pokename.getPokemonIdByName(evName);
   if (evId <= 0) {
-    print(`Failed at retrieving id for pokemon ${ev}`, 31);
+	  print(`Failed at retrieving id for pokemon ${ev}`, 31);
     return (false);
   }
   let evTmpl = this.getPkmnTemplate(evId);
   print(`${this.owner.username} successfully evolved ${this.getPkmnName()} into ${evName}`);
+  this.dexNumber = evId;
+ 
   return (true);
 }

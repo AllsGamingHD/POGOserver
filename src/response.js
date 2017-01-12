@@ -4,8 +4,7 @@ import print from "./print";
 import CFG from "../cfg";
 
 import {
-  _toCC,
-  validUsername
+  _toCC
 } from "./utils";
 
 /**
@@ -17,6 +16,7 @@ export function parseMessage(req, type) {
   let proto = `POGOProtos.Networking.Requests.Messages.${type}Message`;
   if (req.request_message) {
     try {
+	
       return (this.parseProtobuf(req.request_message, proto));
     } catch (e) {
       print(`Failed to parse ${type}: ${e}`, 31);
@@ -44,13 +44,20 @@ export function processResponse(player, req) {
         case "GET_PLAYER":
         case "GET_INVENTORY":
         case "RELEASE_POKEMON":
+        case "UPGRADE_POKEMON":
         case "GET_ASSET_DIGEST":
+        case "NICKNAME_POKEMON":
+        case "CLAIM_CODENAME":
         case "GET_HATCHED_EGGS":
         case "LEVEL_UP_REWARDS":
         case "GET_PLAYER_PROFILE":
         case "CHECK_AWARDED_BADGES":
         case "SET_FAVORITE_POKEMON":
         case "RECYCLE_INVENTORY_ITEM":
+		case "EVOLVE_POKEMON":
+		case "USE_ITEM_POTION":
+		case "USE_ITEM_REVIVE":
+		case "USE_ITEM_XP_BOOST":
           player.getPacket(req.request_type, msg).then((result) => {
             resolve(result);
           });
@@ -67,6 +74,7 @@ export function processResponse(player, req) {
         case "DOWNLOAD_SETTINGS":
         case "DOWNLOAD_REMOTE_CONFIG_VERSION":
         case "DOWNLOAD_ITEM_TEMPLATES":
+        case "MARK_TUTORIAL_COMPLETE":
           msg.player = player;
           player.world.getPacket(req.request_type, msg).then((result) => {
             resolve(result);
